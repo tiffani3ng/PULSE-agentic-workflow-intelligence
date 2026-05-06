@@ -1,145 +1,222 @@
-# Agentic Project Management for Cross-Functional Teams
+# 🩺 PULSE: Agentic Workflow Intelligence for Cross-Functional Teams
 
-**Turning routine project data into workflow intelligence**
+***Turning routine project data into manager-ready workflow diagnosis***
 
-> *An MVP agentic system that assigns work, detects hidden bottlenecks, and recommends safe AI augmentation using only tasks, availability, and event logs.*
+PULSE is a Python-based agentic workflow optimization tool that analyzes employee capacity and task/event logs to identify where cross-functional work gets stuck. The system produces a manager-facing report with bottleneck diagnoses and recommendatons for efficient work allocation and AI-optimization opportunities.
 
-**Author:** Tiffanie Ng
-**Course:** IPHS 391 – Frontiers of AI (Fall 2025), Kenyon College
-**Poster:** *An Agentic Project-Management Tool for Cross-Functional Teams* 
+This project was selected for publication on Kenyon College’s digital research collection. [Read more](https://digital.kenyon.edu/dh_iphs_391/11/)
 
 ---
 
-## 🚩 Motivation
+## Why I Built This
 
-Project management tools excel at tracking **what** needs to be done.
-They are far worse at revealing **where work actually slows down**.
+Most project management tools are good at tracking **what needs to be done**. They are less effective at explaining **why work slows down**.
 
-In cross-functional teams, delays often emerge from:
+In cross-functional teams, delays often come from hidden system-level patterns:
 
-* overloaded specialists,
-* approval ping-pong,
-* vendor dependencies,
-* interruptions and context switching,
-* late-stage compliance gates,
-* and misallocation of work to the wrong people.
+- overloaded specialists,
+- unclear ownership,
+- repeated handoffs,
+- approval loops,
+- vendor dependencies,
+- late-stage review gates,
+- and tasks assigned to people with poor skill fit or limited capacity.
 
-These issues accumulate quietly in **handoffs and waiting time**, not execution itself.
-
-This project explores a simple but powerful idea:
-
-> **Once tasks, assignments, and timestamps exist, workflow bottlenecks become measurable—and optimizable.**
+PULSE explores whether standard operational data (tasks, assignments, employee workload, and event logs) can be used to surface those hidden delays and recommend practical interventions.
 
 ---
 
-## 🧩 What This MVP Does
+## What PULSE Does
 
-This repository contains a **minimal agentic project-management system** that consumes standard project artifacts and produces **manager-facing workflow insight**.
+PULSE takes structured project data and generates a three-part workflow intelligence report:
 
-### Inputs
+1. **Task assignment recommendations**  
+   Assigns unstarted tasks based on skill fit, availability, workload, and capacity risk.
 
-* Employee skills, capacity, and time zones
-* Project and task definitions
-* Availability calendars
-* Event logs (task start / end / handoff)
+2. **Bottleneck detection**  
+   Analyzes task event logs to detect repeated handoffs, queue delays, approval loops, overloaded roles, and late-stage blockers.
 
-### Outputs
+3. **AI-assist recommendations**  
+   Identifies tasks where AI could accelerate work, such as drafting, summarization, documentation, planning, or first-pass analysis.
 
-* Capacity-aware task assignment plans
-* Automated bottleneck detection from event logs
-* Human-in-the-loop AI assist recommendations
-* Consolidated, readable management reports
-
-All outputs are generated via a **CLI-driven pipeline** and saved as structured JSON + Markdown reports.
+The final output is designed to be understandable and actionable for managers and operators. It translates workflow data into plain-language diagnoses and recommended process fixes.
 
 ---
 
-## 🏗 System Architecture (MVP)
+## Project Architecture
 
-The system is orchestrated as a small **agent pipeline**:
+PULSE is organized as a lightweight agentic pipeline:
 
-1. **Data Loader**
-   Loads employees, tasks, availability, and events from CSV/JSON.
+```text
+Structured Data
+    ↓
+Data Loader
+    ↓
+Resource Allocation Agent
+    ↓
+AI Opportunity Scout
+    ↓
+Bottleneck Detector
+    ↓
+Workflow Recommender
+    ↓
+Manager-Facing Report
+```
 
-2. **Resource Allocation Agent**
-   Assigns *unstarted* tasks using heuristic scoring:
+### 1. Data Loader
 
-   * skill match
-   * capacity risk
-   * availability fit
+Loads structured project artifacts from CSV and JSON files:
 
-3. **AI Opportunity Scout**
-   Flags low-risk, reviewable tasks (drafting, summarization, planning) for AI assistance, enforcing human-in-the-loop constraints.
+- employees (titles and skillsets),
+- availability,
+- projects,
+- tasks,
+- task events.
 
-4. **Bottleneck Detector**
-   Converts event logs into workflow metrics:
+### 2. Resource Allocation Agent
 
-   * wait time after handoffs
-   * handoff counts
-   * late completions
-   * approval loops
-   * role-level congestion
+Recommends task assignments using heuristic scoring based on:
 
-5. **Workflow Recommender**
-   Maps detected bottlenecks to actionable fixes:
+- required skill match,
+- available hours,
+- current workload,
+- capacity risk,
+- task urgency.
 
-   * WIP limits
-   * reviewer consolidation
-   * intake triage
-   * on-call rotations
-   * AI copilots for repetitive steps
+### 3. AI Opportunity Scout
 
-6. **Report Emitter**
-   Produces structured JSON artifacts and a consolidated, human-readable Markdown summary.
+Flags tasks where AI automation would accelerate work, focusing on tasks where AI can draft, summarize, or prepare materials without autonomously making high-stakes decisions.
 
----
+### 4. Bottleneck Detector
 
-## 📊 Synthetic Dataset (for Evaluation)
+Computes workflow metrics from event logs, including:
 
-The app itself is **domain-agnostic**, but the MVP is evaluated using a **synthetic e-commerce / retail organization** to enable controlled testing.
+- mean and p90 wait time,
+- service time,
+- handoff counts,
+- repeated role visits,
+- overloaded employees,
+- role-level congestion,
+- critical paths,
+- wait-to-service ratios.
 
-### Why synthetic data?
+### 5. Workflow Recommender
 
-* Real workflow logs are inaccessible due to privacy and policy constraints.
-* Synthetic data allows **explicit injection of known bottlenecks**.
-* Enables benchmarking: *did the system recover the bottlenecks we encoded?*
+Turns detected workflow patterns into operational recommendations, such as:
 
-### Data tables
+- reducing approval loops,
+- redistributing work from overloaded specialists,
+- clarifying completion criteria,
+- adding WIP limits,
+- introducing reviewer consolidation,
+- using AI copilots for repetitive low-risk work.
 
-Located in `/data`:
+### 6. Report Emitter
 
-* `employees.csv`
-* `availability.csv`
-* `projects.csv`
-* `tasks.csv`
-* `events.csv`
-* `synthetic_retail_dataset.json`
-
-The generator emphasizes:
-
-* realistic availability patterns,
-* clustered work bursts,
-* idle gaps and weekends,
-* multi-step cross-role handoffs.
-
----
-
-## ⛔ Bottlenecks Modeled
-
-Six common workflow bottlenecks are intentionally embedded in the event logs:
-
-1. **Analytics backlog / single-threaded specialists**
-2. **Creative review ping-pong**
-3. **Engineering interruptions & late completions**
-4. **Ops delays due to vendor dependencies**
-5. **Late-stage finance / legal gates**
-6. **Misallocation from poor skill fit**
-
-Each bottleneck has a **distinct event-level signature** (e.g., queue delays, repeated handoffs, late “end” events), enabling systematic detection.
+Produces both structured artifacts and a readable Markdown summary for decision-makers.
 
 ---
 
-## 📁 Repository Structure
+## Synthetic Dataset
+
+PULSE is evaluated using a synthetic dataset mimicking a mid-sized e-commerce organization.
+
+The dataset includes:
+
+```text
+employees.csv
+availability.csv
+projects.csv
+tasks.csv
+events.csv
+synthetic_retail_dataset.json
+```
+
+The synthetic organization includes realistic departments, roles, projects, tasks, availability patterns, and task movement events.
+
+### Data schema
+
+| Table | Example fields |
+|---|---|
+| `employees` | employee ID, name, department, role, skills, max hours, timezone |
+| `availability` | employee ID, date, available hours |
+| `projects` | project ID, name, description, deadline, priority |
+| `tasks` | task ID, project ID, skill needed, estimated hours, assignee, due date, status |
+| `events` | task ID, event type, timestamp, from assignee, to assignee |
+
+The data generation process combines Python-controlled structure with LLM-generated project/task detail. Python controls IDs, timestamps, availability patterns, and event simulation, while the LLM helps generate richer project and task descriptions.
+
+---
+
+## Bottlenecks Embedded for Evaluation
+
+To test whether the system could recover realistic workflow problems, I intentionally encoded six bottleneck patterns into the event logs.
+
+| Bottleneck | Description | Detected? |
+|---|---|---|
+| Analytics backlog | Overreliance on a small specialist team, creating 24–96 hour queue delays | Yes |
+| Creative approval loops | Repeated back-and-forth handoffs and long review waits | Yes |
+| Engineering interruptions | Mid-task handoffs, late completions, and blocked work | Yes |
+| Vendor-dependent delays | 72–168 hour silence periods in operations/supply-chain work | Yes |
+| Late finance/legal reviews | Approval delays and clarification loops near deadlines | Yes |
+| Initial task misassignment | Skill mismatch corrected by handoff after 6–24 hours | No |
+
+The MVP successfully identified **5 of 6** encoded bottleneck types. The missed task-misassignment case was the most subtle pattern, suggesting that future versions need stronger assignment-quality metrics or more event volume to detect weak skill-fit signals reliably.
+
+---
+
+## Evaluation Approach
+
+This MVP is evaluated on whether it can produce useful managerial insight from limited operational inputs.
+
+The core evaluation questions are:
+
+1. **Can PULSE uncover workflow bottlenecks from event logs alone?**
+2. **Do task assignments respect skill fit and employee capacity?**
+3. **Are AI-assist recommendations limited to low-risk, human-reviewable work?**
+4. **Can the system translate workflow metrics into plain-language explanations and recommended fixes?**
+
+### Key findings
+
+- The bottleneck detector successfully identified repeated handoff loops, queue delays, late-stage approval gates, vendor delays, and overloaded specialist teams.
+- Workload summaries highlighted overloaded individuals and departments, helping explain where delays originated.
+- Assignment recommendations generally prioritized better skill fit and available capacity.
+- AI recommendations were constrained to low-risk assistance tasks with human review.
+- The system struggled with subtle task misassignment, which became a useful limitation for future evaluation.
+
+---
+
+## Example Output
+
+The main output is a human-readable management report.
+
+Start here:
+
+[`reports/human_readable_summary.md`](reports/human_readable_summary.md)
+
+The report includes:
+
+- executive summary,
+- workload and overload risks,
+- recommended task assignments,
+- bottleneck explanations,
+- AI-assist opportunities,
+- process improvement recommendations.
+
+Example report sections include:
+
+```text
+Executive Summary
+Per-person workload
+Unstarted task routing
+AI-assist flags with reviewer guardrails
+Detected bottlenecks
+Recommended workflow interventions
+```
+
+---
+
+## Repository Structure
 
 ```text
 agentic-project-management/
@@ -165,69 +242,87 @@ agentic-project-management/
 
 ---
 
-## 📄 Key Output
+## How to Run
 
-👉 **Start here:**
-[`reports/human_readable_summary.md`](reports/human_readable_summary.md)
+Clone the repository:
 
-This consolidated report includes:
+```bash
+git clone https://github.com/tiffani3ng/agentic-project-management.git
+cd agentic-project-management
+```
 
-* workload & overload risk by employee,
-* detected bottlenecks with explanations,
-* AI-assist recommendations,
-* process improvement suggestions.
+Install dependencies:
 
----
+```bash
+pip install -r requirements.txt
+```
 
-## 🧪 Evaluation (MVP Scope)
+Run the pipeline:
 
-This MVP is evaluated on **detectability and plausibility**, not production performance:
+```bash
+python main.py
+```
 
-* **Bottleneck detectability:**
-  Can the system surface the six injected bottlenecks from event signatures alone?
-
-* **Assignment plausibility:**
-  Do assignments respect capacity and reduce skill mismatch?
-
-* **AI policy compliance:**
-  Are AI recommendations limited to human-reviewable outputs?
-
-The system successfully recovers all six bottleneck patterns and produces interpretable narratives linking delays to workflow structure.
+Generated reports will be saved in the `reports/` directory.
 
 ---
 
-## 🔮 Future Work
+## Why This Matters
 
-Planned extensions include:
+PULSE is a prototype for turning operational exhaust into actionable workflow intelligence.
 
-* Real-time operation with continuous re-evaluation
-* Calendar API integration (Google / Microsoft)
-* Web dashboard (Streamlit or Next.js)
-* Slack / Teams bot for updates and AI drafts
-* Learning-based task assignment (beyond heuristics)
-* Role-based access control and audit logs
+The broader idea is that many organizations already collect the data needed to understand where work gets stuck. PULSE shows how structured project artifacts can be used to:
 
----
+- detect hidden coordination failures,
+- improve task allocation,
+- reduce bottlenecks,
+- identify safe AI automation opportunities,
+- and help managers make decisions based on workflow evidence rather than intuition alone.
 
-## ⚖ Ethics & Responsible AI
-
-* **No real employee data**
-  All evaluation uses synthetic data designed for privacy and repeatability.
-
-* **Human-in-the-loop by design**
-  AI is restricted to drafting and summarization—no autonomous execution of high-stakes actions.
-
-* **Auditability**
-  Agent inputs, decisions, and recommendations are logged to support inspection, override, and iteration.
+For AI-enabled organizations, this type of system could support continuous outcome tracking to understand not just if teams are using tools, but whether those tools are improving execution, reducing delays, and helping people work more effectively.
 
 ---
 
-## 📚 References
+## Responsible AI and Ethics
 
-Selected literature grounding this work in operations and workflow research:
+PULSE is designed with several responsible AI constraints:
 
-* Abad et al., *EASE ’18* (task interruption)
-* Karimi et al., *Systems* (bottleneck management)
-* Bull, *Zenodo* (Theory of Constraints in workforce systems)
+- **Human-in-the-loop recommendations:** AI suggestions are limited to low-risk, reviewable work.
+- **No autonomous high-stakes decisions:** The system recommends actions but does not execute them.
+- **Auditability:** Outputs are saved as structured reports so recommendations can be inspected and challenged.
 
-(Full citations included in the poster.)
+---
+
+## Future Work
+
+This is an MVP, not a production deployment. Several extensions would move PULSE closer to real-world deployment:
+
+- dynamic project and task updating,
+- continuous re-evaluation as workflow events occur,
+- Google Calendar or Microsoft Outlook integration,
+- Slack or Teams bot for day-to-day workflow updates,
+- Streamlit or web dashboard for manager review,
+- learned task-assignment weights based on outcomes,
+- stronger task-misassignment detection,
+- role-based access controls,
+- audit logs for recommendations and overrides,
+- before/after measurement of workflow interventions.
+
+---
+
+## Selected References
+
+This project draws on research in task interruption, bottleneck management, project coordination, and workflow optimization.
+
+- Abad, Z. S. H., Karras, O., Schneider, K., Barker, K., & Bauer, M. (2018). *Task interruption in software development projects: What makes some interruptions more disruptive than others?*
+- Karimi, H., Sarvari, H., Edwards, D. J., Chan, D. W. M., & Olawumi, T. O. (2024). *Deploying Bottleneck Management Strategies for Ameliorating Critical Delays in Building Construction Projects.*
+- Bull, D. (2025). *Operational Bottlenecks and Workforce Efficiency: A Quantitative Evaluation Using the Theory of Constraints in Healthcare.*
+
+---
+
+## Author
+
+**Tiffanie Ng**  
+Economics & Mathematics major, Scientific Computing concentration  
+Kenyon College ’26  
+[LinkedIn](https://www.linkedin.com/in/tiffanie-ng)
